@@ -1,0 +1,8 @@
+
+
+base = "light"
+primaryColor = "#246C53"
+backgroundColor = "#FBFAF5"
+secondaryBackgroundColor = "#F0F5EF"
+textColor = "#25342F"
+font = "sans serif"
