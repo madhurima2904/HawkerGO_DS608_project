@@ -1,1 +1,7 @@
 
+venv/
+
+# Large raw map files (exceed GitHub's 100 MB limit)
+*.osm
+*.pbf
+.DS_Store
