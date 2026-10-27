@@ -33,7 +33,7 @@ df = load_data()
 
 st.title("🍜 Stall Insights")
 
-# ------------------------- Top 10 largest hawker centres -------------------------
+# Top 10 largest hawker centres
 st.subheader("Top 10 largest hawker centres by total stalls")
 
 top10 = df.nlargest(10, "total_stalls").sort_values("total_stalls", ascending=True)
@@ -65,7 +65,7 @@ with st.expander("Show top 10 table"):
         hide_index=True,
     )
 
-# ----------------------- Distribution: market vs food stalls -----------------------
+# Distribution: market vs food stalls
 st.subheader("Distribution of market stalls vs food stalls")
 
 fig_dist = px.scatter(
