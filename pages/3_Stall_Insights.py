@@ -1,11 +1,10 @@
+
 import re
+from pathlib import Path
 
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from pathlib import Path
-
-st.set_page_config(page_title="Stall Insights", page_icon="🍜", layout="wide")
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,25 +20,66 @@ def short_name(name: str) -> str:
 @st.cache_data
 def load_data() -> pd.DataFrame:
     df = pd.read_csv(DATA_FILE)
-    df["total_stalls"] = df["no_of_market_stalls"].fillna(0) + df["no_of_food_stalls"].fillna(0)
+
+    df["total_stalls"] = (
+        df["no_of_market_stalls"].fillna(0)
+        + df["no_of_food_stalls"].fillna(0)
+    )
+
     df["stall_type"] = df.apply(
         lambda r: "Wet-market heavy"
         if r["no_of_market_stalls"] >= r["no_of_food_stalls"]
         else "Food-court style",
         axis=1,
     )
+
     df["short_name"] = df["name"].apply(short_name)
     return df
+
+
+def make_transparent(fig, height=None):
+    """Make Plotly charts blend with the HawkerGo background."""
+    layout_settings = {
+        "paper_bgcolor": "rgba(0,0,0,0)",
+        "plot_bgcolor": "rgba(0,0,0,0)",
+        "font": {"color": "#25342F"},
+        "legend_title_text": "",
+    }
+
+    if height is not None:
+        layout_settings["height"] = height
+
+    fig.update_layout(**layout_settings)
+    return fig
+
+
+# Transparent Streamlit chart containers
+st.markdown(
+    """
+    <style>
+    div[data-testid="stPlotlyChart"],
+    div[data-testid="stPlotlyChart"] > div {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 df = load_data()
 
 st.title("🍜 Stall Insights")
 
+
 # Top 10 largest hawker centres
 st.subheader("Top 10 largest hawker centres by total stalls")
 
-top10 = df.nlargest(10, "total_stalls").sort_values("total_stalls", ascending=True)
+top10 = (
+    df.nlargest(10, "total_stalls")
+    .sort_values("total_stalls", ascending=True)
+)
 
 fig_top = px.bar(
     top10,
@@ -52,21 +92,45 @@ fig_top = px.bar(
         "no_of_market_stalls": "#dd8452",
     },
     hover_name="name",
-    labels={"short_name": "Hawker centre", "value": "Number of stalls"},
+    labels={
+        "short_name": "Hawker centre",
+        "value": "Number of stalls",
+    },
 )
-names = {"no_of_food_stalls": "Food stalls", "no_of_market_stalls": "Market stalls"}
-fig_top.for_each_trace(lambda t: t.update(name=names[t.name]))
-fig_top.update_layout(legend_title_text="", height=450)
-st.plotly_chart(fig_top, use_container_width=True)
+
+names = {
+    "no_of_food_stalls": "Food stalls",
+    "no_of_market_stalls": "Market stalls",
+}
+
+fig_top.for_each_trace(
+    lambda t: t.update(name=names[t.name])
+)
+
+fig_top = make_transparent(fig_top, height=450)
+
+st.plotly_chart(
+    fig_top,
+    use_container_width=True,
+    theme=None,
+)
+
 
 with st.expander("Show top 10 table"):
     st.dataframe(
         top10.sort_values("total_stalls", ascending=False)[
-            ["name", "no_of_market_stalls", "no_of_food_stalls", "total_stalls", "address_myenv"]
+            [
+                "name",
+                "no_of_market_stalls",
+                "no_of_food_stalls",
+                "total_stalls",
+                "address_myenv",
+            ]
         ],
         use_container_width=True,
         hide_index=True,
     )
+
 
 # Distribution: market vs food stalls
 st.subheader("Distribution of market stalls vs food stalls")
@@ -76,7 +140,10 @@ fig_dist = px.scatter(
     x="no_of_food_stalls",
     y="no_of_market_stalls",
     color="stall_type",
-    color_discrete_map={"Wet-market heavy": "#1f77b4", "Food-court style": "#d62728"},
+    color_discrete_map={
+        "Wet-market heavy": "#1f77b4",
+        "Food-court style": "#d62728",
+    },
     hover_name="short_name",
     labels={
         "no_of_food_stalls": "Food stalls",
@@ -84,10 +151,21 @@ fig_dist = px.scatter(
         "stall_type": "",
     },
 )
-fig_dist.update_traces(marker=dict(size=10, opacity=0.8))
-st.plotly_chart(fig_dist, use_container_width=True)
 
-st. markdown(
+fig_dist.update_traces(
+    marker=dict(size=10, opacity=0.8)
+)
+
+fig_dist = make_transparent(fig_dist)
+
+st.plotly_chart(
+    fig_dist,
+    use_container_width=True,
+    theme=None,
+)
+
+
+st.markdown(
     """
 This chart shows how hawker centres split their space between raw grocery trading and cooked food.
 
