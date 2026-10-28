@@ -1,7 +1,35 @@
 
+# Python virtual environments
 venv/
+.venv/
+env/
 
-# Large raw map files (exceed GitHub's 100 MB limit)
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Mac system files
+.DS_Store
+__MACOSX/
+._*
+
+# Local configuration and credentials
+.env
+.env.*
+.streamlit/secrets.toml
+
+# Temporary and backup files
+*.log
+*.tmp
+*.bak
+.streamlit_backup
+
+# Large OpenStreetMap files
 *.osm
 *.pbf
-.DS_Store
+
+# Editor settings
+.vscode/
+.idea/
