@@ -3,10 +3,13 @@ import re
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+from pathlib import Path
 
 st.set_page_config(page_title="Stall Insights", page_icon="🍜", layout="wide")
 
-DATA_FILE = "hawker_centres_final.csv"
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_FILE = BASE_DIR / "data" / "processed" / "hawker_centres_final.csv"
 
 
 def short_name(name: str) -> str:
