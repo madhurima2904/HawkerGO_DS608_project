@@ -2,7 +2,7 @@
 
 **DS608 Data Analytics for Economics | MDSE Group Project (2026)**
 
-**Group members:** Madhurima Subramaniam Rudra, Nicolyne Tiana Lie, and Toh En Hui .
+**Group members:** Madhurima Subramaniam Rudra, Nicolyne Tiana Lie, and Toh En Hui.
 
 **Project repository:** https://github.com/madhurima2904/HawkerGO_DS608_project
 
