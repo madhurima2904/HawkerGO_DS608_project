@@ -6,15 +6,13 @@
 
 **Project repository:** https://github.com/madhurima2904/HawkerGO_DS608_project
 
+## Motivation and Background
+
+Hawker centres are an essential part of daily life in Singapore. However, scheduled cleaning and closures inconvenience visitors. Our project turns publicly available closure data into an interactive dashboard that helps users plan trips and locate nearby alternatives
+
 ## Research Question
 
 How can public hawker centre closure data be transformed into an interactive dashboard to help residents plan visits and identify nearby dining alternatives?
-
-## Project Overview
-
-HawkerGO is an interactive Streamlit dashboard designed to help residents explore hawker centres in Singapore, check scheduled closures, and understand the distribution of food and market stalls.
-
-By combining publicly available hawker centre information with closure schedules and geographical data, the dashboard helps users plan visits and explore alternative dining locations.
 
 ## Project Objectives
 
@@ -22,13 +20,18 @@ By combining publicly available hawker centre information with closure schedules
 - Provide information about scheduled hawker centre closures.
 - Filter closure schedules by area, hawker centre, closure type, and date.
 - Visualise the distribution of food and market stalls across hawker centres.
-- Present public data through clear, interactive visualisations.
+- Identify peak maintenance periods and high-concentration windows.
+- Analyse patterns in closure frequencies, durations, and timings.
+
 
 ## Dashboard Features
 
 ### Explore Hawkers 
 
 Explore hawker centres and identify nearby dining alternatives using location-based information.
+- Interactive map
+- Alternate stall finder
+- Filter by date, MRT station, status, or Hawker centre.
 
 ### Maintenance Calendar 
 
@@ -49,27 +52,32 @@ Explore hawker centres and identify nearby dining alternatives using location-ba
 
 The project uses publicly available Singapore datasets, including:
 
-- Hawker centre information and geographical locations
-- Scheduled hawker centre closure dates
-- MRT station exit geographical information
+- Primary Dataset: NEA Hawker Centre Closing Data - https://data.gov.sg/datasets/d_bda4baa634dd1cc7a6c7cad5f19e2d68/view
+- Supplementary Dataset 1: Hawker Centres (GEOJSON) - https://data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view
+- Supplementary Dataset 2: LTA MRT Station Exit (GEOJSON) - https://data.gov.sg/datasets/d_b39d3a0871985372d7e1637193335da5/view
+  
+_Source: data.gov.sg_
 
-**To complete before submission:** Verify and add the original dataset URLs, publication dates, and licensing terms.
+## Repository Structure
 
-## Data Preparation and Methodology
+```
+HawkerGO_DS608_project/
+├── app.py                      # Entry point: page config, theme, navigation
+├── pages/
+│   ├── 1_Explore_Hawkers.py
+│   ├── 2_Maintenance_Calendar.py
+│   └── 3_Stall_Insights.py
+├── src/
+│   └── theme.py                # Custom styling
+├── data/
+│   ├── raw/                    # Original data.gov.sg files
+│   └── processed/              # Cleaned data (e.g. hc_final.csv)
+├── outputs/
+├── requirements.txt
+└── README.md
+```
 
-1. **Data collection:** Obtain public hawker centre, closure, and geographical datasets.
-2. **Data cleaning:** Check missing values, inconsistent formats, and data quality.
-3. **Data transformation:** Convert closure schedules into structured records.
-4. **Feature engineering:** Calculate closure durations and total stall counts.
-5. **Exploratory analysis:** Examine closure patterns and differences between centres.
-6. **Data visualisation:** Create interactive charts, maps, filters, and calendars.
-7. **Dashboard development:** Integrate analyses into a multipage Streamlit app.
-
-## Technologies Used
-
-Python, Pandas, Streamlit, Plotly, Git, and GitHub.
-
-## Running the Dashboard Locally
+## Setup and Execution Instructions
 
 Clone the repository:
 
@@ -86,6 +94,22 @@ python3 -m streamlit run app.py
 ```
 
 Open the local URL displayed by Streamlit (usually `http://localhost:8501`). Required processed datasets must be available under `data/processed/`.
+
+## Summary of Analytical Approach
+
+1. **Data collection:** Obtain public hawker centre, closure, and geographical datasets.
+2. **Data cleaning:** Check missing values, inconsistent formats, and data quality.
+3. **Merge Datasets** Merge the hawker centre data to the MRT data to find the nearest MRT station and Exit.
+4. **Data transformation:** Convert closure schedules into structured records.
+5. **Feature engineering:** Calculate closure durations and total stall counts.
+6. **Exploratory analysis:** Examine closure patterns and differences between centres.
+7. **Data visualisation:** Create interactive charts, maps, filters, and calendars.
+8. **Dashboard development:** Integrate analyses into a multipage Streamlit app.
+
+## Technologies Used
+
+Python, Pandas, Streamlit, Plotly, Git, and GitHub.
+
 
 ## Key Limitations
 
