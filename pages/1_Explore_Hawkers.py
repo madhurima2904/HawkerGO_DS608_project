@@ -6,7 +6,16 @@ import streamlit as st                    # Streamlit: the web app framework
 import plotly.express as px               # Plotly Express: quick interactive map
 import plotly.graph_objects as go         # Plotly graph objects: lets us add the highlight ring and MRT marker
 
-st.set_page_config(page_title="Hawker Downtime", layout="wide")  # tab title + full-width layout (must be the first Streamlit call)
+
+
+from src.theme import apply_theme, render_hero
+
+apply_theme()
+render_hero(
+    section="Explore Hawkers",
+    headline="Hawker Downtime",
+    description="Explore Singapore hawker centres, check scheduled closures and discover places nearby.",
+)
 
 ROOT = Path(__file__).resolve().parents[1]          # project root (pages/ -> project/)
 PROCESSED = ROOT / "data" / "processed"
@@ -110,7 +119,6 @@ HAS_MRT = {MRT_NAME_COL, MRT_EXIT_COL, MRT_DIST_COL, MIN_COL} <= set(base.column
 HAS_MRT_XY = HAS_MRT and {MRT_LAT_COL, MRT_LON_COL} <= set(base.columns)  # True if MRT coordinates also exist (needed for the map)
 
 # ---------- header ----------
-st.markdown("<h1 style='color:#e5533d;margin-bottom:0'>Hawker Downtime</h1>", unsafe_allow_html=True)  # red title
 date_line = st.empty()                                # empty slot for the date line, filled in once the date is chosen
 
 # ---------- filter bar (horizontal, at the top) ----------

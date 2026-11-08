@@ -1,42 +1,57 @@
 
 import streamlit as st
+
 from src.theme import apply_theme
 
+
+# ============================================================
+# PAGE SETTINGS
+# ============================================================
+
 st.set_page_config(
-    page_title="HawkerGo",
+    page_title="HawkerGO",
     page_icon="🍜",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
+
+# ============================================================
+# SHARED THEME
+# ============================================================
+
 apply_theme()
+
+
+# ============================================================
+# PAGE NAVIGATION
+# ============================================================
 
 pages = [
     st.Page(
         "pages/1_Explore_Hawkers.py",
         title="Explore Hawkers",
-        icon="🏠"
+        icon=":material/home:",
     ),
+
     st.Page(
         "pages/2_Maintenance_Calendar.py",
         title="Maintenance Calendar",
-        icon="📅",
-        default=True
+        icon=":material/calendar_month:",
+        default=True,
     ),
+
     st.Page(
         "pages/3_Stall_Insights.py",
         title="Stall Insights",
-        icon="📊"
-    )
+        icon=":material/bar_chart:",
+    ),
 ]
 
-with st.sidebar:
-    st.markdown("## 🍜 HawkerGo")
-    st.caption("Find your next makan spot")
 
 navigation = st.navigation(
     pages,
-    position="sidebar"
+    position="sidebar",
 )
 
 navigation.run()

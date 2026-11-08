@@ -1,76 +1,127 @@
 
+"""HawkerGO Maintenance Calendar."""
+
 import calendar
-import streamlit as st
+from html import escape
+
 import pandas as pd
 import plotly.graph_objects as go
+import streamlit as st
 
-from src.theme import apply_theme, style_chart
+from src.theme import apply_theme, render_hero
 from src.wrangle import load_closure_data
 
 
-# ==================================================
-# SETUP
-# ==================================================
-
 apply_theme()
 
-GREEN = "#246C53"
-ORANGE = "#E46C45"
-TEXT = "#25342F"
-MUTED = "#607267"
 
-st.markdown("""
-<style>
-/* Simple, understated closure cards */
-[data-testid="stVerticalBlockBorderWrapper"] {
-    box-shadow: none !important;
-}
+# ============================================================
+# PAGE STYLING
+# ============================================================
 
-/* Soft, natural filter colours */
-[data-testid="stMultiSelect"] [data-baseweb="tag"] {
-    background-color: #E4EEE5 !important;
-}
+st.markdown(
+    """
+    <style>
+    .hg-summary {
+        background: linear-gradient(
+            130deg, #FFFEFA 55%, #E9F3E4
+        );
+        border: 1px solid #E3E8D9;
+        border-radius: 15px;
+        padding: 16px 18px;
+        min-height: 90px;
+    }
 
-[data-testid="stMultiSelect"] [data-baseweb="tag"] span {
-    color: #246C53 !important;
-}
+    .hg-summary-label {
+        color: #526359;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
 
-/* Transparent Plotly backgrounds */
-[data-testid="stPlotlyChart"],
-[data-testid="stPlotlyChart"] > div {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-</style>
-""", unsafe_allow_html=True)
+    .hg-summary-value {
+        color: #103D2D;
+        font: 700 28px Georgia, serif;
+    }
+
+    .hg-panel-title {
+        color: #103D2D;
+        font-size: 18px;
+        font-weight: 750;
+        margin-bottom: 5px;
+    }
+
+    .hg-help {
+        color: #637369;
+        font-size: 12px;
+        line-height: 1.5;
+        margin-bottom: 12px;
+    }
+
+    .hg-centre-group {
+        margin: 16px 0 6px;
+        color: #103D2D;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .hg-centre-group span {
+        color: #718076;
+        font-weight: 500;
+    }
+
+    .hg-period {
+        padding: 12px 0;
+        border-bottom: 1px solid #E8E9DE;
+    }
+
+    .hg-period:last-child {
+        border-bottom: 0;
+    }
+
+    .hg-period-date {
+        display: inline-block;
+        background: #FCE4D6;
+        color: #624332;
+        border-radius: 9px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 5px 9px;
+        margin-bottom: 6px;
+    }
+
+    .hg-period-centre {
+        color: #183A2B;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1.4;
+    }
+
+    .hg-period-type {
+        color: #627269;
+        font-size: 12px;
+        margin-top: 3px;
+    }
+
+    .hg-data-note {
+        margin-top: 17px;
+        padding: 12px 15px;
+        background: #F1F6ED;
+        border: 1px solid #DFEADC;
+        border-radius: 12px;
+        color: #536B58;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
-# ==================================================
-# LOAD DATA
-# ==================================================
-
-@st.cache_data
-def get_data():
-    return load_closure_data()
-
-
-try:
-    df = get_data()
-except (FileNotFoundError, ValueError) as error:
-    st.error(str(error))
-    st.stop()
-
-if df.empty:
-    st.warning("No closure records found.")
-    st.stop()
-
-
-# ==================================================
+# ============================================================
 # AREA CLASSIFICATION
-# ==================================================
-# Approximate grouping based on centre names
-# and addresses, not official planning boundaries.
+# ============================================================
 
 AREA_KEYWORDS = {
     "Ang Mo Kio": [
@@ -82,30 +133,25 @@ AREA_KEYWORDS = {
     "Bishan": ["bishan", "shunfu"],
     "Bukit Batok": ["bukit batok"],
     "Bukit Merah": [
-        "bukit merah", "tiong bahru",
-        "redhill", "alexandra", "telok blangah",
-        "henderson", "beo crescent"
+        "bukit merah", "tiong bahru", "redhill",
+        "alexandra", "telok blangah", "henderson",
+        "beo crescent"
     ],
     "Bukit Panjang": ["bukit panjang"],
     "Central Area": [
-        "maxwell", "amoy", "chinatown",
-        "hong lim", "people's park",
-        "tekka", "berseh", "golden mile",
-        "newton", "market street",
+        "maxwell", "amoy", "chinatown", "hong lim",
+        "people's park", "tekka", "berseh",
+        "golden mile", "newton", "market street",
         "tanjong pagar", "lavender"
     ],
     "Clementi": ["clementi", "west coast"],
     "Geylang": [
-        "geylang", "aljunied",
-        "old airport road", "sims"
+        "geylang", "aljunied", "old airport road",
+        "sims"
     ],
     "Hougang": ["hougang", "kovan"],
-    "Jurong East": [
-        "jurong east", "yuhua", "teban"
-    ],
-    "Jurong West": [
-        "jurong west", "boon lay"
-    ],
+    "Jurong East": ["jurong east", "yuhua", "teban"],
+    "Jurong West": ["jurong west", "boon lay"],
     "Kallang": [
         "kallang", "whampoa", "bendemeer"
     ],
@@ -115,9 +161,8 @@ AREA_KEYWORDS = {
     "Pasir Ris": ["pasir ris"],
     "Punggol": ["punggol"],
     "Queenstown": [
-        "queenstown", "commonwealth",
-        "ghim moh", "holland drive",
-        "tanglin halt", "mei ling"
+        "queenstown", "commonwealth", "ghim moh",
+        "holland drive", "tanglin halt", "mei ling"
     ],
     "Sembawang": ["sembawang"],
     "Sengkang": ["sengkang", "anchorvale"],
@@ -129,601 +174,655 @@ AREA_KEYWORDS = {
 }
 
 
-def identify_area(row):
-    name = str(row["Hawker Centre"]).lower()
+def area_for(row):
+    name = str(row.get("Hawker Centre", "")).lower()
     address = str(row.get("Address", "")).lower()
 
-    for area, keywords in AREA_KEYWORDS.items():
-        if any(keyword in name for keyword in keywords):
-            return area
-
-    for area, keywords in AREA_KEYWORDS.items():
-        if any(keyword in address for keyword in keywords):
-            return area
+    for text in (name, address):
+        for area, keywords in AREA_KEYWORDS.items():
+            if any(word in text for word in keywords):
+                return area
 
     return "Other areas"
 
 
-df["Area"] = df.apply(identify_area, axis=1)
+# ============================================================
+# LOAD DATA
+# ============================================================
 
-dated_df = df[
-    df["Schedule Status"] == "Dated"
-].copy()
+@st.cache_data(show_spinner=False)
+def get_data():
+    return load_closure_data()
 
-review_df = df[
-    df["Schedule Status"] == "Needs review"
-].copy()
 
-if dated_df.empty:
-    st.warning("No valid closure date ranges found.")
+try:
+    data = get_data().copy()
+
+except (FileNotFoundError, ValueError) as exc:
+    st.error(
+        f"Could not load the closure dataset: {exc}"
+    )
     st.stop()
 
 
-# ==================================================
-# HERO
-# ==================================================
-
-st.markdown("""
-<div class="hero">
-    <div class="section-label">
-        HAWKERGO / MAINTENANCE CALENDAR
-    </div>
-    <h1>Know before you go.</h1>
-    <p>
-        Explore scheduled cleaning and maintenance
-        closures across Singapore's hawker centres.
-    </p>
-</div>
-""", unsafe_allow_html=True)
-
-st.caption(
-    "Source: Uploaded hawker-centre closure dataset. "
-    "Area groupings are approximate and dates "
-    "may change."
-)
-
-
-# ==================================================
-# KEEP ORIGINAL AREA SELECTOR
-# ==================================================
-
-st.subheader("Choose your area")
-
-area_options = sorted(df["Area"].unique())
-
-default_area = (
-    "Serangoon"
-    if "Serangoon" in area_options
-    else area_options[0]
-)
-
-selected_area = st.selectbox(
-    "Where would you like to visit?",
-    options=area_options,
-    index=area_options.index(default_area),
-)
-
-area_df = df[
-    df["Area"] == selected_area
-].copy()
-
-area_centres = sorted(
-    area_df["Hawker Centre"].unique()
-)
-
-st.caption(
-    f"{len(area_centres)} hawker centres "
-    f"found in {selected_area}."
-)
-
-
-# ==================================================
-# KEEP ORIGINAL FILTERS
-# ==================================================
-
-st.subheader("Filter closures")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    selected_centres = st.multiselect(
-        "Hawker centres",
-        options=area_centres,
-        default=area_centres,
-    )
-
-with col2:
-    type_options = sorted(
-        area_df["Closure Type"].unique()
-    )
-
-    selected_types = st.multiselect(
-        "Closure type",
-        options=type_options,
-        default=type_options,
-    )
-
-area_dated = dated_df[
-    dated_df["Area"] == selected_area
-].copy()
-
-if area_dated.empty:
-    st.info("No dated closure records for this area.")
+if data.empty:
+    st.info("No closure records are available.")
     st.stop()
 
-min_date = area_dated["Start Date"].min().date()
-max_date = area_dated["End Date"].max().date()
 
-selected_dates = st.date_input(
-    "Select date range",
-    value=(min_date, max_date),
-    min_value=min_date,
-    max_value=max_date,
-)
+data["Area"] = data.apply(area_for, axis=1)
 
-if len(selected_dates) != 2:
-    st.info("Please select both dates.")
+dated = data[
+    data["Schedule Status"].eq("Dated")
+].copy()
+
+needs_review = data[
+    data["Schedule Status"].eq("Needs review")
+].copy()
+
+
+if dated.empty:
+    st.info("No dated closure records are available.")
     st.stop()
 
-filter_start = pd.Timestamp(selected_dates[0])
-filter_end = pd.Timestamp(selected_dates[1])
 
-filtered_df = dated_df[
-    dated_df["Hawker Centre"].isin(selected_centres)
-    & dated_df["Closure Type"].isin(selected_types)
-    & (dated_df["Area"] == selected_area)
-    & (dated_df["Start Date"] <= filter_end)
-    & (dated_df["End Date"] >= filter_start)
-].copy()
+# ============================================================
+# ILLUSTRATED PAGE HEADING
+# ============================================================
 
-reviews = review_df[
-    review_df["Area"].eq(selected_area)
-    & review_df["Hawker Centre"].isin(selected_centres)
-    & review_df["Closure Type"].isin(selected_types)
-].copy()
-
-
-# ==================================================
-# KEEP ORIGINAL SUMMARY CARDS
-# ==================================================
-
-st.markdown(
-    f"### Closure overview — {selected_area}"
-)
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric(
-        "Scheduled closure events",
-        len(filtered_df)
-    )
-
-with col2:
-    st.metric(
-        "Hawker centres affected",
-        filtered_df["Hawker Centre"].nunique()
-    )
-
-with col3:
-    median_duration = (
-        filtered_df["Duration"].median()
-        if not filtered_df.empty
-        else 0
-    )
-
-    st.metric(
-        "Median closure duration",
-        f"{median_duration:g} days"
-    )
-
-st.divider()
-
-
-# ==================================================
-# MONTHLY CLOSURE CALENDAR
-# ==================================================
-
-st.subheader("Closure calendar")
-
-st.caption(
-    "Choose a month to see scheduled closure days. "
-    "Darker squares indicate more overlapping events."
-)
-
-available_months = pd.period_range(
-    start=filter_start,
-    end=filter_end,
-    freq="M"
-)
-
-month_labels = [
-    period.strftime("%B %Y")
-    for period in available_months
-]
-
-current_period = pd.Timestamp.today().to_period("M")
-
-default_month_index = (
-    list(available_months).index(current_period)
-    if current_period in available_months
-    else 0
-)
-
-selected_month_label = st.selectbox(
-    "Month to display",
-    options=month_labels,
-    index=default_month_index,
-)
-
-selected_index = month_labels.index(
-    selected_month_label
-)
-
-selected_period = available_months[selected_index]
-
-month_start = selected_period.start_time.normalize()
-month_end = selected_period.end_time.normalize()
-
-visible_start = max(month_start, filter_start)
-visible_end = min(month_end, filter_end)
-
-month_df = filtered_df[
-    (filtered_df["Start Date"] <= visible_end)
-    & (filtered_df["End Date"] >= visible_start)
-].copy()
-
-year = selected_period.year
-month = selected_period.month
-
-month_calendar = calendar.Calendar(
-    firstweekday=0
-).monthdatescalendar(year, month)
-
-# Every calendar cell contains a count of
-# closure events active on that day.
-z_values = []
-hover_values = []
-day_labels = []
-
-for week in month_calendar:
-
-    z_row = []
-    hover_row = []
-    label_row = []
-
-    for day in week:
-
-        day_timestamp = pd.Timestamp(day)
-
-        if (
-            day.month != month
-            or day_timestamp < visible_start
-            or day_timestamp > visible_end
-        ):
-            z_row.append(None)
-            hover_row.append("")
-            label_row.append("")
-            continue
-
-        active = month_df[
-            (month_df["Start Date"] <= day_timestamp)
-            & (month_df["End Date"] >= day_timestamp)
-        ]
-
-        count = len(active)
-
-        z_row.append(count)
-        label_row.append(str(day.day))
-
-        if count:
-            centre_names = sorted(
-                active["Hawker Centre"].unique()
-            )
-
-            details = "<br>".join(centre_names)
-
-            hover_row.append(
-                f"{day.strftime('%d %b %Y')}"
-                f"<br>{count} scheduled event(s)"
-                f"<br>{details}"
-            )
-        else:
-            hover_row.append(
-                f"{day.strftime('%d %b %Y')}"
-                "<br>No recorded closure events"
-            )
-
-    z_values.append(z_row)
-    hover_values.append(hover_row)
-    day_labels.append(label_row)
-
-max_count = max(
-    [len(month_df), 1]
-)
-
-calendar_fig = go.Figure()
-
-calendar_fig.add_trace(
-    go.Heatmap(
-        z=z_values,
-        x=[
-            "Mon", "Tue", "Wed", "Thu",
-            "Fri", "Sat", "Sun"
-        ],
-        y=list(range(len(month_calendar))),
-        text=day_labels,
-        customdata=hover_values,
-        texttemplate="%{text}",
-        textfont=dict(
-            size=15,
-            color=TEXT
-        ),
-        colorscale=[
-            [0.0, "#F0F2EA"],
-            [0.001, "#F0F2EA"],
-            [0.15, "#F8D7C6"],
-            [0.6, "#F0A27D"],
-            [1.0, ORANGE],
-        ],
-        zmin=0,
-        zmax=max_count,
-        showscale=False,
-        xgap=6,
-        ygap=6,
-        hovertemplate="%{customdata}<extra></extra>",
-    )
-)
-
-calendar_fig = style_chart(
-    calendar_fig,
-    height=90 * len(month_calendar) + 65
-)
-
-calendar_fig.update_layout(
-    paper_bgcolor="rgba(0,0,0,0)",
-    plot_bgcolor="rgba(0,0,0,0)",
-    margin=dict(l=10, r=10, t=20, b=10),
-)
-
-calendar_fig.update_xaxes(
-    side="top",
-    showgrid=False,
-    showline=False,
-    ticks="",
-    tickfont=dict(
-        color=MUTED,
-        size=13
+render_hero(
+    "Maintenance Calendar",
+    "Plan the makan.\nSkip the closure.",
+    (
+        "Explore recorded cleaning and maintenance "
+        "closures across Singapore's hawker centres."
     ),
 )
 
-calendar_fig.update_yaxes(
-    autorange="reversed",
-    showticklabels=False,
-    showgrid=False,
-    showline=False,
-    zeroline=False,
+
+# ============================================================
+# FILTERS
+# ============================================================
+
+area_col, centre_col, type_col, range_col = st.columns(
+    [1.15, 2.1, 1.3, 1.6],
+    gap="small",
+    vertical_alignment="bottom",
 )
 
-st.plotly_chart(
-    calendar_fig,
-    use_container_width=True,
-    theme=None,
+
+areas = sorted(
+    data["Area"].dropna().unique().tolist()
 )
 
-st.caption(
-    "Colour intensity shows the number of "
-    "scheduled events affecting each day, "
-    "not the number of stalls closed."
-)
 
-st.divider()
-
-
-# ==================================================
-# CLOSURE DETAILS
-# ==================================================
-
-st.subheader("Scheduled closures")
-
-st.caption(
-    f"Closure details for {selected_month_label} "
-    f"in {selected_area}."
-)
-
-if month_df.empty:
-    st.info(
-        "No dated closures are recorded for this "
-        "month and your selected filters. "
-        "This does not guarantee every stall is open."
+with area_col:
+    area = st.selectbox(
+        "Area",
+        areas,
+        index=(
+            areas.index("Serangoon")
+            if "Serangoon" in areas
+            else 0
+        ),
+        key="simple_area",
     )
 
-else:
-    month_df = month_df.sort_values(
-        ["Start Date", "Hawker Centre"]
+
+area_data = data[data["Area"].eq(area)]
+
+centres = sorted(
+    area_data["Hawker Centre"]
+    .dropna()
+    .unique()
+    .tolist()
+)
+
+
+with centre_col:
+    selected_centres = st.multiselect(
+        "Hawker centres",
+        centres,
+        default=centres,
+        key="simple_centres",
     )
 
-    for _, row in month_df.iterrows():
 
-        centre = str(row["Hawker Centre"])
-        closure_type = str(row["Closure Type"])
+closure_types = sorted(
+    area_data["Closure Type"]
+    .dropna()
+    .unique()
+    .tolist()
+)
 
-        start_date = row["Start Date"].strftime(
-            "%d %B %Y"
+
+with type_col:
+    selected_types = st.multiselect(
+        "Closure type",
+        closure_types,
+        default=closure_types,
+        key="simple_types",
+    )
+
+
+area_dated = dated[
+    dated["Area"].eq(area)
+]
+
+range_data = (
+    area_dated
+    if not area_dated.empty
+    else dated
+)
+
+first_date = range_data["Start Date"].min().date()
+last_date = range_data["End Date"].max().date()
+
+
+with range_col:
+    chosen_range = st.date_input(
+        "Date range",
+        (first_date, last_date),
+        min_value=first_date,
+        max_value=last_date,
+        key=f"simple_range_{area}",
+    )
+
+
+if (
+    not isinstance(chosen_range, (tuple, list))
+    or len(chosen_range) != 2
+):
+    st.info("Select both start and end dates.")
+    st.stop()
+
+
+start, end = map(pd.Timestamp, chosen_range)
+
+
+# ============================================================
+# FILTERED DATA FOR CALENDAR AND SUMMARY
+# ============================================================
+
+filtered = dated[
+    dated["Area"].eq(area)
+    & dated["Hawker Centre"].isin(selected_centres)
+    & dated["Closure Type"].isin(selected_types)
+    & dated["Start Date"].le(end)
+    & dated["End Date"].ge(start)
+].copy()
+
+
+# ============================================================
+# SUMMARY METRICS
+# ============================================================
+
+st.write("")
+
+median = (
+    filtered["Duration"].median()
+    if not filtered.empty
+    else None
+)
+
+summary = [
+    (
+        "Recorded closure events",
+        str(len(filtered)),
+    ),
+    (
+        "Centres affected",
+        str(filtered["Hawker Centre"].nunique()),
+    ),
+    (
+        "Median duration",
+        (
+            f"{median:g} days"
+            if pd.notna(median)
+            else "—"
+        ),
+    ),
+]
+
+
+for col, (label, value) in zip(
+    st.columns(3, gap="medium"),
+    summary,
+):
+    with col:
+        st.markdown(
+            '<div class="hg-summary">'
+            f'<div class="hg-summary-label">{escape(label)}</div>'
+            f'<div class="hg-summary-value">{escape(value)}</div>'
+            '</div>',
+            unsafe_allow_html=True,
         )
 
-        end_date = row["End Date"].strftime(
-            "%d %B %Y"
+
+st.write("")
+
+
+# ============================================================
+# CALENDAR
+# ============================================================
+
+months = list(
+    pd.period_range(
+        start=start,
+        end=end,
+        freq="M",
+    )
+)
+
+today = pd.Timestamp.today().to_period("M")
+
+
+active_months = [
+    month
+    for month in months
+    if not filtered.empty
+    and (
+        filtered["Start Date"].le(
+            min(month.end_time.normalize(), end)
+        )
+        & filtered["End Date"].ge(
+            max(month.start_time.normalize(), start)
+        )
+    ).any()
+]
+
+
+initial_month = (
+    min(
+        active_months,
+        key=lambda month: abs(
+            month.ordinal - today.ordinal
+        ),
+    )
+    if active_months
+    else (
+        today
+        if today in months
+        else months[0]
+    )
+)
+
+
+left, right = st.columns(
+    [1.08, 0.92],
+    gap="medium",
+    vertical_alignment="top",
+)
+
+
+with left:
+    with st.container(border=True):
+
+        label_col, month_col = st.columns(
+            [1.5, 1],
+            vertical_alignment="bottom",
         )
 
-        remarks = str(row["Remarks"]).strip()
-
-        with st.container(border=True):
-
-            left, right = st.columns([4, 1])
-
-            with left:
-                st.markdown(f"**{centre}**")
-
-            with right:
-                st.caption(closure_type)
-
+        with label_col:
             st.markdown(
-                f"{start_date} – {end_date}"
+                '<div class="hg-panel-title">'
+                'Closure calendar'
+                '</div>',
+                unsafe_allow_html=True,
             )
 
-            if remarks and remarks.lower() not in [
-                "nan", "nil", "none", "-"
-            ]:
-                with st.expander("Additional details"):
-                    st.write(remarks)
-
-
-# ==================================================
-# ADDITIONAL YEARLY GRAPH
-# ==================================================
-
-st.divider()
-
-with st.expander("Explore closure patterns"):
-
-    st.markdown("#### Closures by month")
-
-    st.caption(
-        "Each event is counted in the month "
-        "when it starts. The graph follows "
-        "your area, centre, type, and date filters."
-    )
-
-    if filtered_df.empty:
-        st.info("No data available for these filters.")
-
-    else:
-        monthly = filtered_df.copy()
-
-        monthly["Month"] = (
-            monthly["Start Date"]
-            .dt.to_period("M")
-            .dt.to_timestamp()
-        )
-
-        monthly_counts = (
-            monthly.groupby(
-                ["Month", "Closure Type"]
+        with month_col:
+            month = st.selectbox(
+                "Month",
+                months,
+                index=months.index(initial_month),
+                format_func=lambda m: m.strftime(
+                    "%B %Y"
+                ),
+                key="simple_month",
             )
-            .size()
-            .reset_index(name="Events")
+
+        st.markdown(
+            '<p class="hg-help">'
+            'Darker coral means more overlapping closures. '
+            'Hover over a date to see its recorded event count.'
+            '</p>',
+            unsafe_allow_html=True,
         )
 
-        monthly_fig = go.Figure()
+        visible_start = max(
+            month.start_time.normalize(),
+            start,
+        )
 
-        for closure_type, colour in [
-            ("Cleaning", ORANGE),
-            ("Other works", GREEN),
-        ]:
+        visible_end = min(
+            month.end_time.normalize(),
+            end,
+        )
 
-            subset = monthly_counts[
-                monthly_counts["Closure Type"]
-                == closure_type
-            ]
+        weeks = calendar.Calendar(
+            firstweekday=0
+        ).monthdatescalendar(
+            month.year,
+            month.month,
+        )
 
-            if subset.empty:
-                continue
+        day_labels = []
+        values = []
+        hover = []
 
-            monthly_fig.add_trace(
-                go.Bar(
-                    x=subset["Month"],
-                    y=subset["Events"],
-                    name=closure_type,
-                    marker_color=colour,
-                    hovertemplate=(
-                        "%{x|%b %Y}"
-                        "<br>%{y} events"
-                        "<extra></extra>"
-                    ),
+        for week in weeks:
+            row_days = []
+            row_counts = []
+            row_hover = []
+
+            for day in week:
+                when = pd.Timestamp(day)
+
+                inside = (
+                    day.month == month.month
+                    and visible_start <= when <= visible_end
                 )
-            )
 
-        monthly_fig = style_chart(
-            monthly_fig,
-            height=350
+                if inside:
+                    count = int(
+                        (
+                            filtered["Start Date"].le(when)
+                            & filtered["End Date"].ge(when)
+                        ).sum()
+                    )
+                else:
+                    count = None
+
+                row_days.append(
+                    str(day.day) if inside else ""
+                )
+
+                row_counts.append(count)
+
+                row_hover.append(
+                    day.strftime("%d %b %Y")
+                    if inside
+                    else ""
+                )
+
+            day_labels.append(row_days)
+            values.append(row_counts)
+            hover.append(row_hover)
+
+        maximum = max(
+            1,
+            max(
+                (
+                    value
+                    for row in values
+                    for value in row
+                    if value is not None
+                ),
+                default=0,
+            ),
         )
 
-        monthly_fig.update_layout(
+        fig = go.Figure(
+            go.Heatmap(
+                x=[
+                    "Mon", "Tue", "Wed", "Thu",
+                    "Fri", "Sat", "Sun"
+                ],
+                y=list(range(len(weeks))),
+                z=values,
+                text=day_labels,
+                customdata=hover,
+                texttemplate="%{text}",
+                textfont=dict(
+                    size=13,
+                    color="#203A2D",
+                ),
+                colorscale=[
+                    [0, "#FFFEFA"],
+                    [0.01, "#FFE7DA"],
+                    [0.5, "#F8C2A7"],
+                    [1, "#F08C6C"],
+                ],
+                zmin=0,
+                zmax=maximum,
+                xgap=4,
+                ygap=4,
+                showscale=False,
+                hovertemplate=(
+                    "%{customdata}<br>"
+                    "%{z} closure event(s)"
+                    "<extra></extra>"
+                ),
+            )
+        )
+
+        fig.update_layout(
+            height=60 * len(weeks) + 68,
+            margin=dict(
+                l=0,
+                r=0,
+                t=24,
+                b=0,
+            ),
             paper_bgcolor="rgba(0,0,0,0)",
             plot_bgcolor="rgba(0,0,0,0)",
-            barmode="stack",
-            bargap=0.35,
-            xaxis_title="",
-            yaxis_title="Scheduled events",
-            legend_title_text="Closure type",
+            dragmode=False,
         )
 
-        monthly_fig.update_xaxes(
-            tickformat="%b %Y"
+        fig.update_xaxes(
+            side="top",
+            showgrid=False,
+            ticks="",
+            tickfont=dict(
+                size=11,
+                color="#405348",
+            ),
+            fixedrange=True,
+        )
+
+        fig.update_yaxes(
+            visible=False,
+            autorange="reversed",
+            fixedrange=True,
         )
 
         st.plotly_chart(
-            monthly_fig,
+            fig,
             use_container_width=True,
-            theme=None,
+            config={
+                "displayModeBar": False
+            },
+        )
+
+        st.caption(
+            "No shaded dates do not guarantee "
+            "that a centre is open."
         )
 
 
-# ==================================================
-# RECORDS NEEDING CONFIRMATION
-# ==================================================
+# ============================================================
+# ALL CLOSURE PERIODS FOR SELECTED HAWKER CENTRES
+# ============================================================
 
-with st.expander(
-    f"Dates requiring confirmation ({len(reviews)})"
-):
+# IMPORTANT:
+# These records are NOT restricted to the calendar month
+# or selected date range.
+#
+# The area, selected centres, and closure-type filters
+# still apply.
 
-    st.caption(
-        "Some records have missing or uncertain "
-        "dates. These are excluded from the graphs."
+
+all_dated_periods = dated[
+    dated["Area"].eq(area)
+    & dated["Hawker Centre"].isin(selected_centres)
+    & dated["Closure Type"].isin(selected_types)
+].copy()
+
+
+all_review_periods = needs_review[
+    needs_review["Area"].eq(area)
+    & needs_review["Hawker Centre"].isin(selected_centres)
+    & needs_review["Closure Type"].isin(selected_types)
+].copy()
+
+
+def show_dated_event(event):
+    start_text = event["Start Date"].strftime(
+        "%d %b %Y"
     )
 
-    if reviews.empty:
-        st.write(
-            "No records require review "
-            "for the selected centres and types."
+    end_text = event["End Date"].strftime(
+        "%d %b %Y"
+    )
+
+    period = f"{start_text} – {end_text}"
+
+    remarks = str(
+        event.get("Remarks", "")
+    ).strip()
+
+    if remarks.lower() in (
+        "nan", "none", "<na>"
+    ):
+        remarks = ""
+
+    st.markdown(
+        '<div class="hg-period">'
+        f'<div class="hg-period-date">{escape(period)}</div>'
+        f'<div class="hg-period-type">'
+        f'{escape(str(event["Closure Type"]))}'
+        '</div>'
+        + (
+            f'<div class="hg-period-type">'
+            f'{escape(remarks)}'
+            '</div>'
+            if remarks
+            else ""
+        )
+        + '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+def show_uncertain_event(event):
+    period = str(
+        event.get(
+            "Period",
+            "Date not confirmed",
+        )
+    ).strip()
+
+    if period.lower() in (
+        "", "nan", "none", "<na>"
+    ):
+        period = "Date not confirmed"
+
+    st.markdown(
+        '<div class="hg-period">'
+        '<div class="hg-period-date">'
+        'Date needs confirmation'
+        '</div>'
+        f'<div class="hg-period-type">'
+        f'{escape(period)}'
+        '</div>'
+        f'<div class="hg-period-type">'
+        f'{escape(str(event["Closure Type"]))}'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+
+
+with right:
+    with st.container(border=True):
+
+        st.markdown(
+            '<div class="hg-panel-title">'
+            'Closure periods'
+            '</div>',
+            unsafe_allow_html=True,
         )
 
-    else:
-        for _, row in reviews.iterrows():
+        period_count = (
+            len(all_dated_periods)
+            + len(all_review_periods)
+        )
 
-            st.markdown(
-                f"**{row['Hawker Centre']}**"
+        st.markdown(
+            '<p class="hg-help">'
+            f'{period_count} recorded period(s) '
+            'for the selected hawker centre(s). '
+            'Showing all available dates, '
+            'not just the selected month.'
+            '</p>',
+            unsafe_allow_html=True,
+        )
+
+        if not selected_centres:
+            st.info(
+                "Select at least one hawker centre "
+                "to see its closure periods."
             )
 
-            st.caption(
-                f"{row['Period']} / "
-                f"{row['Closure Type']}"
+        elif period_count == 0:
+            st.info(
+                "No recorded closure periods "
+                "for these centres and closure types."
             )
 
-            remarks = str(
-                row["Remarks"]
-            ).strip()
+        else:
+            for centre_name in sorted(selected_centres):
 
-            if remarks and remarks.lower() not in [
-                "nan", "nil", "none", "-"
-            ]:
-                st.write(remarks)
-            else:
-                st.write(
-                    "The date information "
-                    "requires confirmation."
+                centre_dated = all_dated_periods[
+                    all_dated_periods[
+                        "Hawker Centre"
+                    ].eq(centre_name)
+                ].sort_values(
+                    ["Start Date", "End Date"],
+                    ascending=[False, False],
                 )
 
-            st.divider()
+                centre_review = all_review_periods[
+                    all_review_periods[
+                        "Hawker Centre"
+                    ].eq(centre_name)
+                ]
+
+                centre_count = (
+                    len(centre_dated)
+                    + len(centre_review)
+                )
+
+                if centre_count == 0:
+                    continue
+
+                st.markdown(
+                    '<div class="hg-centre-group">'
+                    f'{escape(str(centre_name))} '
+                    f'<span>({centre_count})</span>'
+                    '</div>',
+                    unsafe_allow_html=True,
+                )
+
+                for _, event in centre_dated.iterrows():
+                    show_dated_event(event)
+
+                for _, event in centre_review.iterrows():
+                    show_uncertain_event(event)
 
 
-# ==================================================
-# FOOTNOTE
-# ==================================================
+# ============================================================
+# DATA DISCLAIMER
+# ============================================================
 
-st.caption(
-    "Schedules are based on the uploaded dataset. "
-    "Some records may refer to partial closures. "
-    "Please check official notices before visiting."
+st.markdown(
+    '<div class="hg-data-note">'
+    '<strong>About the data.</strong> '
+    'These are hawker-centre closure records, '
+    'not live stall-level operating status. '
+    'Area classification is approximate. '
+    'Verify official dates before visiting.'
+    '</div>',
+    unsafe_allow_html=True,
 )
