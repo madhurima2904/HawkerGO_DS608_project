@@ -1,15 +1,14 @@
 
 """HawkerGO Maintenance Calendar."""
-
+from pathlib import Path
 import calendar
 from html import escape
-
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
 from src.theme import apply_theme, render_hero
-from src.wrangle import load_closure_data
 
 
 apply_theme()
@@ -190,35 +189,39 @@ def area_for(row):
 # LOAD DATA
 # ============================================================
 
-@st.cache_data(show_spinner=False)
-def get_data():
-    return load_closure_data()
+ROOT = Path(__file__).resolve().parent.parent
+data = pd.read_csv(ROOT / "data" / "processed" / "hawker_centres_final.csv")
+
+PERIODS = {
+    "Q1": ("q1_cleaningstartdate", "q1_cleaningenddate", "q1_tbc"),
+    "Q2": ("q2_cleaningstartdate", "q2_cleaningenddate", "q2_tbc"),
+    "Q3": ("q3_cleaningstartdate", "q3_cleaningenddate", "q3_tbc"),
+    "Q4": ("q4_cleaningstartdate", "q4_cleaningenddate", "q4_tbc"),
+    "Other works": ("other_works_startdate", "other_works_enddate", "other_works_tbc"),
+}
 
 
-try:
-    data = get_data().copy()
+rows = []
+for closure_type, (start_col, end_col, tbc_col) in PERIODS.items():
+    part = data[["name", "address_myenv", start_col, end_col, tbc_col]].copy()
+    part.columns = ["Hawker Centre", "Address", "Start Date", "End Date", "TBC"]
+    part["Closure Type"] = closure_type
+    rows.append(part)
 
-except (FileNotFoundError, ValueError) as exc:
-    st.error(
-        f"Could not load the closure dataset: {exc}"
-    )
-    st.stop()
-
-
-if data.empty:
-    st.info("No closure records are available.")
-    st.stop()
-
-
+data = pd.concat(rows, ignore_index=True)
+data["Start Date"] = pd.to_datetime(data["Start Date"])
+data["End Date"] = pd.to_datetime(data["End Date"])
+data["Duration"] = (data["End Date"] - data["Start Date"]).dt.days + 1
+data["TBC"] = data["TBC"].astype(str).str.strip().str.lower().isin(["true", "1"])
+data["Schedule Status"] = np.where(
+    data["Start Date"].notna() & data["End Date"].notna() & ~data["TBC"],
+    "Dated",
+    "TBC",
+)
 data["Area"] = data.apply(area_for, axis=1)
 
-dated = data[
-    data["Schedule Status"].eq("Dated")
-].copy()
-
-needs_review = data[
-    data["Schedule Status"].eq("Needs review")
-].copy()
+dated = data[data["Schedule Status"].eq("Dated")].copy()
+needs_review = data[data["Schedule Status"].eq("Needs review")].copy()
 
 
 if dated.empty:

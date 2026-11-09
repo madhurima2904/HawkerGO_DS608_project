@@ -19,7 +19,7 @@ st.html("""
 /* Page background */
 .stApp:has(.hg-page-explore),
 .stApp:has(.hg-page-explore) [data-testid="stAppViewContainer"] {
-    background-color: #F4EFE3 !important;
+    background-color: #FFFEFA !important;
 }
 
 /* Operational status cards: very light green */
@@ -30,13 +30,13 @@ st.html("""
 
 /* Hero banner background, so it matches the page */
 .stApp:has(.hg-page-explore) .hg-hero {
-    background-color: #F4EFE3 !important;
+    background-color: #FFFEFA !important;
 }
 
 .stApp:has(.hg-page-explore) .hg-hero::before {
     background: linear-gradient(
         90deg,
-        #F4EFE3 0%,
+        #FFFEFA 0%,
         rgba(244,239,227,.98) 28%,
         rgba(244,239,227,.86) 44%,
         rgba(244,239,227,.14) 70%,
@@ -94,7 +94,7 @@ render_hero(
 ROOT = Path(__file__).resolve().parents[1]          # project root (pages/ -> project/)
 PROCESSED = ROOT / "data" / "processed"
 DATA_FILE = PROCESSED / "hawker_centres_final.csv"
-WALK_FILE = PROCESSED / "hc_walk_distances.csv"           
+WALK_FILE = PROCESSED / "hawker_centres_walk_distances.csv"           
 PAIRS = [                                                  # (start, end) date columns for every closure type
     ("q1_cleaningstartdate", "q1_cleaningenddate"),        # Q1 cleaning
     ("q2_cleaningstartdate", "q2_cleaningenddate"),        # Q2 cleaning
