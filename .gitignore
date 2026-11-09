@@ -33,3 +33,4 @@ __MACOSX/
 # Editor settings
 .vscode/
 .idea/
+__pycache__/
