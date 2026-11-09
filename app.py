@@ -30,13 +30,13 @@ pages = [
         "pages/1_Explore_Hawkers.py",
         title="Explore Hawkers",
         icon=":material/home:",
+        default=True,
     ),
 
     st.Page(
         "pages/2_Maintenance_Calendar.py",
         title="Maintenance Calendar",
-        icon=":material/calendar_month:",
-        default=True,
+        icon=":material/calendar_month:",    
     ),
 
     st.Page(
