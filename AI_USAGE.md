@@ -11,16 +11,15 @@ During the development of the HawkerGo project, generative AI tools (including C
 ---
 
 ## 2. Specific Contributions & Applications
+**Streamlit Dashboard Development & UI Setup:**
+ * Assisted in structuring layout modules, optimizing sidebar navigation, and formatting dashboard components.
+ * Provided code snippets for multi-page navigation and asset embedding.
 
-* **Streamlit Dashboard Development & UI Setup:**
-  * Assisted in structuring layout modules, optimizing sidebar navigation, and formatting dashboard components.
-  * Provided code snippets for multi-page navigation and asset embedding.
+**Data Analysis:**
+ * Assisted in logic implementation for processing dates, operational distribution patterns, and maintenance schedules.
 
-* **Data Analysis:**
-  * Assisted in logic implementation for processing dates, operational distribution patterns, and maintenance schedules.
-
-* **Documentation & Technical Writing:**
-  * Assisted in drafting and structuring repository documentation and inline code comments.
+**Documentation & Technical Writing:**
+ * Assisted in drafting and structuring repository documentation and inline code comments.
 
 ---
 
