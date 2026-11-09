@@ -20,11 +20,11 @@ nodes = ox.distance.nearest_nodes(G, X=df["longitude_hc"], Y=df["latitude_hc"]) 
 
 dist = np.full((len(df), len(df)), np.nan)      # empty n x n table filled with NaN (unknown)
 
-for i, src in enumerate(nodes):                 # loops over each centre as the starting point
-    lengths = nx.single_source_dijkstra_path_length(G, src, weight="length")  # shortest walking distance (metres) from this node to every other node
-    for j, dst in enumerate(nodes):             # loops over each centre as the destination
-        dist[i, j] = lengths.get(dst, np.nan)   # looks up the distance; NaN if no route exists
+for i, src in enumerate(nodes):
+    lengths = nx.single_source_dijkstra_path_length(G, src, weight="length")
+    for j, dst in enumerate(nodes):
+        dist[i, j] = lengths.get(dst, np.nan)
 
 out = pd.DataFrame(dist, index=df["name"], columns=df["name"]).round(0)   # labels rows and columns with centre names, rounds to whole metres
-out.to_csv(PROCESSED / "hawker_centres_walk_distances.csv")  # saves the table under the name the app expects           # saves the table for the app to use
+out.to_csv(PROCESSED / "hawker_centres_walk_distances.csv")  # saves the table under the name the app expects 
 print("Saved", out.shape, "| missing values:", int(out.isna().sum().sum()))  # confirms the size and any gaps
