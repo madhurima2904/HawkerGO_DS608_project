@@ -63,7 +63,7 @@ st.html("""
     display: block;
     width: 100%;
     box-sizing: border-box;
-    background: #E9D9BC;          /* light brown from the illustration */
+    background: #EDA36D;          /* #E9D9BC light brown from the illustration */
     color: #4B3621;               /* dark brown text for contrast */
     border: none;
     border-radius: 0;             /* square corners */

@@ -34,3 +34,6 @@ __MACOSX/
 .vscode/
 .idea/
 __pycache__/
+data/processed/*.graphml
+data/raw/*.pbf
+data/raw/*.osm
