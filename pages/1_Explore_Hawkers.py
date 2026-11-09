@@ -5,12 +5,86 @@ import pandas as pd                       # Pandas: data handling
 import streamlit as st                    # Streamlit: the web app framework
 import plotly.express as px               # Plotly Express: quick interactive map
 import plotly.graph_objects as go         # Plotly graph objects: lets us add the highlight ring and MRT marker
+from html import escape
 
 
 
 from src.theme import apply_theme, render_hero
 
 apply_theme()
+
+st.html("""
+<div class="hg-page-explore"></div>
+<style>
+/* Page background */
+.stApp:has(.hg-page-explore),
+.stApp:has(.hg-page-explore) [data-testid="stAppViewContainer"] {
+    background-color: #F4EFE3 !important;
+}
+
+/* Operational status cards: very light green */
+.stApp:has(.hg-page-explore) [data-testid="stMetric"] {
+    background: #F2F8EE !important;
+    border: 1px solid #D5E6CB !important;
+}
+
+/* Hero banner background, so it matches the page */
+.stApp:has(.hg-page-explore) .hg-hero {
+    background-color: #F4EFE3 !important;
+}
+
+.stApp:has(.hg-page-explore) .hg-hero::before {
+    background: linear-gradient(
+        90deg,
+        #F4EFE3 0%,
+        rgba(244,239,227,.98) 28%,
+        rgba(244,239,227,.86) 44%,
+        rgba(244,239,227,.14) 70%,
+        transparent 90%
+    );
+}
+
+/* Make the map card and finder card end on the same line */
+.stApp:has(.hg-page-explore) [data-testid="stHorizontalBlock"] {
+    align-items: stretch !important;
+}
+
+.stApp:has(.hg-page-explore) [data-testid="stColumn"] > div {
+    height: 100%;
+}
+
+.stApp:has(.hg-page-explore) [data-testid="stColumn"]
+[data-testid="stVerticalBlockBorderWrapper"] {
+    height: 100%;
+}
+
+/* Boxed headings */
+.stApp:has(.hg-page-explore) .hg-box-title {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    background: #E9D9BC;          /* light brown from the illustration */
+    color: #4B3621;               /* dark brown text for contrast */
+    border: none;
+    border-radius: 0;             /* square corners */
+    padding: 9px 14px;
+    margin: 0 0 12px 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+/* Selected centre highlight (use with class="hg-selected") */
+.stApp:has(.hg-page-explore) .hg-selected {
+    background: #E3F0D1;
+    border: 2px solid #246C53;
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin-bottom: 12px;
+}
+</style>
+""")
+
 render_hero(
     section="Explore Hawkers",
     headline="Hawker Downtime",
@@ -20,7 +94,7 @@ render_hero(
 ROOT = Path(__file__).resolve().parents[1]          # project root (pages/ -> project/)
 PROCESSED = ROOT / "data" / "processed"
 DATA_FILE = PROCESSED / "hawker_centres_final.csv"
-WALK_FILE = PROCESSED / "hc_walk_distances.csv"                # EDIT if your file in data-processed has a different name
+WALK_FILE = PROCESSED / "hc_walk_distances.csv"           
 PAIRS = [                                                  # (start, end) date columns for every closure type
     ("q1_cleaningstartdate", "q1_cleaningenddate"),        # Q1 cleaning
     ("q2_cleaningstartdate", "q2_cleaningenddate"),        # Q2 cleaning
@@ -122,7 +196,7 @@ HAS_MRT_XY = HAS_MRT and {MRT_LAT_COL, MRT_LON_COL} <= set(base.columns)  # True
 date_line = st.empty()                                # empty slot for the date line, filled in once the date is chosen
 
 # ---------- filter bar (horizontal, at the top) ----------
-bar = st.container(border=True)                       # bordered box holding all filters
+bar = st.container(border=True, key="filter_bar")   # bordered box holding all filters
 f1, f2, f3, f4 = bar.columns([1, 1.3, 1.5, 2])        # four side-by-side columns
 today = pd.Timestamp(f1.date_input("Date", value=date.today()))  # date picker (the only non-dropdown)
 df = add_status(base, today)                          # computes statuses for that date
@@ -138,7 +212,7 @@ view = pool[pool["status"].isin(status_filter)]       # centres shown on the map
 row = df.loc[df["name"] == chosen].iloc[0]            # the selected centre's row
 
 date_line.caption(f"{today.strftime('%A %d %B %Y')} · NEA-managed hawker centres")  # fills the date line under the title
-st.subheader("1 · Live operational status")           # section heading
+st.subheader(" Live operational status")           # section heading
 
 # ---------- KPI cards ----------
 c1, c2, c3, c4 = st.columns(4)                        # four equal columns
@@ -200,13 +274,16 @@ with left.container(border=True):                     # bordered map card
                 name="MRT station", hoverinfo="text", # legend name; hover shows the label
             ))
         fig.update_layout(map_style=MAP_STYLE,        # light or dark map tiles
+                          paper_bgcolor = "#F4EFE6",
                           margin=dict(l=0, r=0, t=0, b=0),  # trims margins
+                          height=682,
                           legend=dict(orientation="h", y=-0.03))  # legend below the map
+        
         st.plotly_chart(fig)                          # shows the map (Streamlit adapts text colours to the theme)
 
 with right:                                           # right-hand column
     with st.container(border=True):                   # selected centre card
-        st.subheader(row["name"])                     # centre name
+        st.html(f'<div class="hg-box-title">{escape(chosen)}</div>')                  # centre name
         st.caption(row["address_myenv"])              # address
         label = f"Closed today · reopens {fmt(row['reopen'])}" if row["closed_today"] else row["status"]  # pill text
         pill_text = "#1c2b27" if row["status"] == "Closing within 7 days" else "white"  # dark text on yellow, white on the others
@@ -225,7 +302,7 @@ with right:                                           # right-hand column
         st.write(f"**Stalls:** {food} food · {market} market · {food + market} total")  # stall breakdown
 
     with st.container(border=True):                   # alternative stall finder card
-        st.subheader("Alternative stall finder")      # card title
+        st.html('<div class="hg-box-title">Alternative stall finder</div>')      # card title
         st.caption("Nearest open centres to your closed favourite")  # card subtitle
         walk = load_walk_matrix()                     # loads the walking-distance table (or None)
         if walk is None:                              # file not generated yet
@@ -235,9 +312,9 @@ with right:                                           # right-hand column
         else:
             df["dist_m"] = df["name"].map(walk.loc[chosen])  # walking distance from the selected centre to every other centre
             alts = df[(~df["closed_today"]) & (df["name"] != chosen)].nsmallest(3, "dist_m")  # 3 closest open centres
-            for _, a in alts.iterrows():              # loops over those 3
+            for rank, (_, a) in enumerate(alts.iterrows(), start=1):  # rank runs 1, 2, 3
                 n_col, d_col = st.columns([4, 1])     # name on the left, distance on the right
-                n_col.markdown(f"**{a['name']}**")    # centre name
+                n_col.markdown(f"**{rank}. {a['name']}**")  # numbered centre name
                 trip_min = max(1, round(a["dist_m"] / 80))  # walking time at about 80 m per minute
                 n_col.caption(f"{trip_min} min walk" + (f" · Nearest MRT: {a[MRT_NAME_COL]}" if HAS_MRT else ""))  # walk time + its MRT
                 d_col.markdown(f"**{a['dist_m'] / 1000:.1f} km**")  # distance in km, 1 decimal place
