@@ -22,7 +22,7 @@ Responsible for the second dashboard page, which presents planned cleaning and o
 
 ### Toh En Hui — Stall Insights
 
-Responsible for the third dashboard page, which compares hawker centres by food and market stall counts. This includes a stacked bar chart of the ten largest centres, a scatter plot of market versus food stalls, and descriptive stall-type labels. _Confirm any additional data cleaning, chart interpretation, or presentation tasks before final submission._
+Responsible for the third dashboard page, which compares hawker centres by food and market stall counts. This includes a stacked bar chart of the ten largest centres, a scatter plot of market versus food stalls, and descriptive stall-type labels. Additional contributions include assisting with the project presentation materials and performing final validation checks across the dashboard charts prior to submission.
 
 ## Shared work and collaboration
 
