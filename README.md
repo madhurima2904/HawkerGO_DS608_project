@@ -55,6 +55,7 @@ The project uses publicly available Singapore datasets, including:
 - Primary Dataset: NEA Hawker Centre Closing Data - https://data.gov.sg/datasets/d_bda4baa634dd1cc7a6c7cad5f19e2d68/view
 - Supplementary Dataset 1: Hawker Centres (GEOJSON) - https://data.gov.sg/datasets/d_4a086da0a5553be1d89383cd90d07ecd/view
 - Supplementary Dataset 2: LTA MRT Station Exit (GEOJSON) - https://data.gov.sg/datasets/d_b39d3a0871985372d7e1637193335da5/view
+- Geofabrik Map of Singapore: https://download.geofabrik.de/asia/malaysia-singapore-brunei.html (not added to git as file size exceeds limit)
   
 _Source: data.gov.sg_
 
@@ -79,14 +80,16 @@ HawkerGO_DS608_project/
 
 ## Setup and Execution Instructions
 
-Clone the repository:
+1. Download the Singapore map from https://download.geofabrik.de/asia/malaysia-singapore-brunei.html as "malaysia-singapore-brunei-261018.osm.pbf"
+
+2. Clone the repository:
 
 ```bash
 git clone https://github.com/madhurima2904/HawkerGO_DS608_project.git
 cd HawkerGO_DS608_project
 ```
 
-Install dependencies and launch the dashboard:
+3. Install dependencies and launch the dashboard:
 
 ```bash
 python3 -m pip install -r requirements.txt
