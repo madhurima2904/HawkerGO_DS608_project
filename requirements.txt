@@ -35,3 +35,7 @@ uvicorn==0.54.0
 websockets==17.3
 networkx
 osmnx
+geopandas
+pyrosm
+pyproj
+scipy
