@@ -1,5 +1,4 @@
-
-"""Export Stall Insights charts to outputs/figures."""
+"""Export Stall Insights and Closure charts to outputs/figures."""
 
 from pathlib import Path
 import sys
@@ -20,24 +19,20 @@ def find_project_root():
     for place in places:
         for folder in (place, *place.parents):
 
-            data_file = (
-                folder
-                / "data"
-                / "processed"
-                / "hawker_centres_final.csv"
-            )
+            if (folder / "data" / "processed" / "hawker_centres_final.csv").is_file():
+                return folder
 
-            if data_file.is_file():
+            if (folder / "data" / "raw" / "DatesofHawkerCentresClosure.csv").is_file():
                 return folder
 
     raise FileNotFoundError(
-        "Cannot find hawker_centres_final.csv. "
+        "Cannot find the HawkerGO data files. "
         "Make sure this script is inside your HawkerGO project."
     )
 
 
 # ============================================================
-# MAIN EXPORT FUNCTION
+# STALL INSIGHTS CHARTS
 # ============================================================
 
 def main():
@@ -419,7 +414,309 @@ def main():
         "stall_insights_food_vs_market.png",
     )
 
-    print("\nSUCCESS: All 3 figures exported to:")
+    print("\nSUCCESS: All 3 stall figures exported to:")
+    print(output)
+
+    # Closure charts run after the stall charts
+    export_closure_charts(root)
+
+
+# ============================================================
+# CLOSURE CHARTS
+# ============================================================
+
+def export_closure_charts(root):
+
+    import calendar
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    csv_file = root / "data" / "raw" / "DatesofHawkerCentresClosure.csv"
+    output = root / "outputs" / "figures"
+    output.mkdir(parents=True, exist_ok=True)
+
+    df = pd.read_csv(csv_file)
+
+    CREAM = "#FFFEFA"
+    FOREST = "#103D2D"
+    GREEN = "#246C53"
+    ORANGE = "#EDA36D"
+    LIGHT = "#9CAFA1"
+
+    # ========================================================
+    # PARSE DATES ("nil" and blanks become NaT)
+    # ========================================================
+
+    def parse(series):
+        return pd.to_datetime(
+            series,
+            format="%d/%m/%Y",
+            errors="coerce",
+        )
+
+    # Long table: one row per scheduled quarterly closure
+    records = []
+
+    for q in ["q1", "q2", "q3", "q4"]:
+
+        start = parse(df[f"{q}_cleaningstartdate"])
+        end = parse(df[f"{q}_cleaningenddate"])
+
+        for s, e in zip(start, end):
+
+            if pd.notna(s) and pd.notna(e):
+                records.append({
+                    "quarter": q.upper(),
+                    "start": s,
+                    "days": (e - s).days + 1,
+                })
+
+    closures = pd.DataFrame(records)
+
+    # Other works (repairs, redecoration, etc.)
+    other = pd.DataFrame({
+        "start": parse(df["other_works_startdate"]),
+        "end": parse(df["other_works_enddate"]),
+    }).dropna(subset=["start"])
+
+    other["days"] = (other["end"] - other["start"]).dt.days + 1
+
+    # ========================================================
+    # SAVE AND STYLE HELPERS
+    # ========================================================
+
+    def save(fig, filename):
+
+        location = output / filename
+
+        fig.savefig(
+            location,
+            dpi=200,
+            bbox_inches="tight",
+            facecolor=CREAM,
+        )
+
+        plt.close(fig)
+
+        print(f"Saved: {location}")
+
+    def style(ax):
+
+        ax.set_facecolor(CREAM)
+
+        ax.tick_params(
+            length=0,
+            colors=FOREST,
+            labelsize=10,
+        )
+
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+        ax.set_axisbelow(True)
+
+    month_labels = [calendar.month_abbr[m] for m in range(1, 13)]
+
+    # ========================================================
+    # FIGURE 1 — CLOSURES CLUSTER AT QUARTER END
+    # ========================================================
+
+    monthly = (
+        closures["start"]
+        .dt.month
+        .value_counts()
+        .reindex(range(1, 13), fill_value=0)
+    )
+
+    # Quarter-end months: March, June, September, December
+    colours = [
+        GREEN if m in (3, 6, 9, 12) else LIGHT
+        for m in range(1, 13)
+    ]
+
+    fig, ax = plt.subplots(
+        figsize=(11, 6.5),
+        facecolor=CREAM,
+    )
+
+    style(ax)
+
+    bars = ax.bar(
+        month_labels,
+        monthly.values,
+        color=colours,
+        width=0.7,
+    )
+
+    for bar, value in zip(bars, monthly.values):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + 1,
+            f"{value}",
+            ha="center",
+            va="bottom",
+            color=FOREST,
+            fontsize=10,
+        )
+
+    ax.yaxis.grid(True, color="#E9E8DF")
+
+    ax.set_ylabel(
+        "Scheduled quarterly closures",
+        color=FOREST,
+    )
+
+    ax.set_title(
+        "Closures cluster at the end of each quarter",
+        color=FOREST,
+        fontsize=19,
+        fontweight="bold",
+        loc="left",
+        pad=16,
+    )
+
+    save(
+        fig,
+        "closure_monthly_clustering.png",
+    )
+
+    # ========================================================
+    # FIGURE 2 — CLOSURE LENGTH (MEDIAN AND MEAN)
+    # ========================================================
+
+    length = (
+        closures
+        .groupby("quarter")["days"]
+        .agg(["median", "mean"])
+        .reindex(["Q1", "Q2", "Q3", "Q4"])
+    )
+
+    fig, ax = plt.subplots(
+        figsize=(9, 6.5),
+        facecolor=CREAM,
+    )
+
+    style(ax)
+
+    x = range(len(length))
+
+    ax.bar(
+        x,
+        length["median"],
+        color=GREEN,
+        width=0.6,
+        label="Median",
+    )
+
+    ax.scatter(
+        x,
+        length["mean"],
+        color=ORANGE,
+        s=90,
+        zorder=3,
+        label="Mean",
+    )
+
+    for i, (med, avg) in enumerate(
+        zip(length["median"], length["mean"])
+    ):
+        ax.text(
+            i,
+            max(med, avg) + 0.12,
+            f"median {med:.0f}\nmean {avg:.1f}",
+            ha="center",
+            va="bottom",
+            color=FOREST,
+            fontsize=9,
+        )
+
+    ax.set_xticks(list(x), length.index)
+
+    ax.set_ylim(0, length.values.max() + 1.2)
+
+    ax.yaxis.grid(True, color="#E9E8DF")
+
+    ax.set_ylabel(
+        "Closure length (days)",
+        color=FOREST,
+    )
+
+    ax.set_title(
+        "Closures are short, and slightly longer in Q4",
+        color=FOREST,
+        fontsize=19,
+        fontweight="bold",
+        loc="left",
+        pad=16,
+    )
+
+    ax.legend(frameon=False)
+
+    save(
+        fig,
+        "closure_length_by_quarter.png",
+    )
+
+    # ========================================================
+    # FIGURE 3 — OTHER WORKS BY START MONTH
+    # ========================================================
+
+    other_monthly = (
+        other["start"]
+        .dt.month
+        .value_counts()
+        .reindex(range(1, 13), fill_value=0)
+    )
+
+    fig, ax = plt.subplots(
+        figsize=(11, 6.5),
+        facecolor=CREAM,
+    )
+
+    style(ax)
+
+    bars = ax.bar(
+        month_labels,
+        other_monthly.values,
+        color=ORANGE,
+        width=0.7,
+    )
+
+    for bar, value in zip(bars, other_monthly.values):
+        if value:
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                value + 0.2,
+                f"{value}",
+                ha="center",
+                va="bottom",
+                color=FOREST,
+                fontsize=10,
+            )
+
+    ax.yaxis.grid(True, color="#E9E8DF")
+
+    ax.set_ylabel(
+        "Centres with other works",
+        color=FOREST,
+    )
+
+    ax.set_title(
+        f"Other works: {len(other)} scheduled events, "
+        f"median {other['days'].median():.0f} days",
+        color=FOREST,
+        fontsize=19,
+        fontweight="bold",
+        loc="left",
+        pad=16,
+    )
+
+    save(
+        fig,
+        "other_works_by_month.png",
+    )
+
+    print("\nSUCCESS: All 3 closure figures exported to:")
     print(output)
 
 
