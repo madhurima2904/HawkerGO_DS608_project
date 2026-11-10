@@ -39,3 +39,4 @@ geopandas
 pyrosm
 pyproj
 scipy
+matplotlib

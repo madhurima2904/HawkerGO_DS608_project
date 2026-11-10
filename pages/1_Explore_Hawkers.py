@@ -120,7 +120,7 @@ try:                                      # tries to read the active Streamlit t
     DARK = st.context.theme.type == "dark"  # True when the app is in dark mode
 except Exception:                         # older Streamlit versions don't have this
     DARK = False                          # falls back to light mode
-MAP_STYLE = "carto-darkmatter" if DARK else "carto-positron"  # dark map tiles in dark mode, light tiles otherwise
+MAP_STYLE = "carto-positron"  # dark map tiles in dark mode, light tiles otherwise
 INK = "#f2f2f2" if DARK else "#1c2b27"    # text colour used on the map (light text on dark tiles)
 MRT_COLOUR = "#4da3ff" if DARK else "#1f5fbf"  # MRT marker/line colour, readable on either map
 
