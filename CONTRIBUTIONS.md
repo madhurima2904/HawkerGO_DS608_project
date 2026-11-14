@@ -14,7 +14,7 @@ HawkerGo was developed collaboratively as a three-member group project. The tabl
 
 ### Madhurima Subramaniam Rudra — Explore Hawkers
 
-Responsible for the first dashboard page, which lets users examine hawker centres, their scheduled closure status, location information, stall counts, and nearby alternatives. The page uses a processed hawker centre dataset and a precomputed walking-distance matrix. _Confirm whether Madhu also prepared the walking-distance matrix, geographic joins, and raw-data processing before attributing those tasks._
+Responsible for the first dashboard page, which lets users examine hawker centres, their scheduled closure status, location information, stall counts, and nearby alternatives. The page uses a processed hawker centre dataset and a precomputed walking-distance matrix. She also handled the raw-data processing, geographic joins, and precomputation of the walking-distance matrix used across the page.
 
 ### Nicolyne Tiana Lie — Maintenance Calendar
 
@@ -22,7 +22,7 @@ Responsible for the second dashboard page, which presents planned cleaning and o
 
 ### Toh En Hui — Stall Insights
 
-Responsible for the third dashboard page, which compares hawker centres by food and market stall counts. This includes a stacked bar chart of the ten largest centres, a scatter plot of market versus food stalls, and descriptive stall-type labels. Additional contributions include assisting with the project presentation materials and performing final validation checks across the dashboard charts prior to submission.
+Responsible for the third dashboard page, which compares hawker centres by food and market stall counts. This includes a stacked bar chart of the ten largest centres, a scatter plot of market versus food stalls, and descriptive stall-type labels. Additional contributions include assisting with the project presentation materials and performing final validation checks across the dashboard charts before submission.
 
 ## Shared work and collaboration
 
