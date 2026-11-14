@@ -35,5 +35,3 @@ The team integrated the three pages into a unified Streamlit multipage dashboard
 ## Academic integrity and accountability
 
 This project is group work for **DS608 Data Analytics for Economics**. Each member is responsible for understanding and being able to explain their contribution. Generative AI assistance is disclosed separately in [AI_USAGE.md](AI_USAGE.md).
-
-_Review this file with Madhu and Enhui before submission to ensure that all contributions are accurate and complete._
