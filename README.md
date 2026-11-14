@@ -117,7 +117,6 @@ Python, Pandas, Streamlit, Plotly, Git, and GitHub.
 ## Key Limitations
 
 - Closure schedules may change after publication.
-- Some records have missing or unconfirmed dates.
 - Scheduled closures may affect only part of a hawker centre.
 - Nearby alternatives depend on geographical data quality.
 - The dashboard does not confirm real-time operating status.
