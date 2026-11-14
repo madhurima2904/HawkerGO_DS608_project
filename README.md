@@ -46,7 +46,7 @@ Explore hawker centres and identify nearby dining alternatives using location-ba
 - Top 10 largest hawker centres by total stalls
 - Comparison of food stalls and market stalls
 - Scatter plot of stall types
-- Interactive charts and summary tables
+- Interactive charts
 
 ## Data Sources
 
