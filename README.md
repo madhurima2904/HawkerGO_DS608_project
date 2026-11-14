@@ -144,7 +144,7 @@ Generative AI assistance is documented in [AI_USAGE.md](AI_USAGE.md). Group memb
 
 ## Reproducibility
 
-The repository includes the Streamlit application, data-processing code, and documentation. Before final submission, the group should document the original data sources, preprocessing steps, required files, and any limits to regenerating processed datasets.
+The repository includes the Streamlit application (`app.py`), page modules (`pages/`), styling configuration (`src/theme.py`), processed datasets (`data/processed/`), and dependency list (`requirements.txt`). Raw datasets from data.gov.sg and the Singapore Geofabrik extract can be re-downloaded from the links listed in **Data Sources** to regenerate the processed tables.
 
 ## Acknowledgement
 
