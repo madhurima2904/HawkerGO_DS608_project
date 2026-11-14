@@ -139,8 +139,8 @@ Generative AI assistance is documented in [AI_USAGE.md](AI_USAGE.md). Group memb
 ## Dashboard and Presentation
 
 - **GitHub repository:** https://github.com/madhurima2904/HawkerGO_DS608_project
-- **Live Streamlit dashboard:** To be added after deployment.
-- **Final presentation:** To be added under `outputs/presentation/`.
+- **Live Streamlit dashboard:** https://hawker-go.streamlit.app
+- **Final presentation:** outputs/presentation/
 
 ## Reproducibility
 
