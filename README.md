@@ -8,7 +8,7 @@
 
 ## Motivation and Background
 
-Hawker centres are an essential part of daily life in Singapore. However, scheduled cleaning and closures inconvenience visitors. Our project turns publicly available closure data into an interactive dashboard that helps users plan trips and locate nearby alternatives
+Hawker centres are an essential part of daily life in Singapore. However, scheduled cleaning and closures inconvenience visitors. Our project turns publicly available closure data into an interactive dashboard that helps users plan trips and locate nearby alternatives.
 
 ## Research Question
 
@@ -102,12 +102,12 @@ Open the local URL displayed by Streamlit (usually `http://localhost:8501`). Req
 
 1. **Data collection:** Obtain public hawker centre, closure, and geographical datasets.
 2. **Data cleaning:** Check missing values, inconsistent formats, and data quality.
-3. **Merge Datasets** Merge the hawker centre data to the MRT data to find the nearest MRT station and Exit.
+3. **Merge Datasets:** Merge the hawker centre data with the MRT data to find the nearest MRT station and Exit.
 4. **Data transformation:** Convert closure schedules into structured records.
 5. **Feature engineering:** Calculate closure durations and total stall counts.
 6. **Exploratory analysis:** Examine closure patterns and differences between centres.
 7. **Data visualisation:** Create interactive charts, maps, filters, and calendars.
-8. **Dashboard development:** Integrate analyses into a multipage Streamlit app.
+8. **Dashboard development:** Integrate analyses into a multi-page Streamlit app.
 
 ## Technologies Used
 
@@ -126,9 +126,9 @@ Python, Pandas, Streamlit, Plotly, Git, and GitHub.
 
 | Group Member | Main Responsibility |
 |---|---|
-| Madhu | Explore Hawkers |
+| Madhurima Subramaniam Rudra | Explore Hawkers |
 | Nicolyne Tiana Lie | Maintenance Calendar |
-| Enhui | Stall Insights |
+| Toh En Hui | Stall Insights |
 
 This is collaborative group work for DS608 Data Analytics for Economics in the Master of Science in Data Science for Economics programme. See [CONTRIBUTIONS.md](CONTRIBUTIONS.md) for individual contributions.
 
