@@ -2,7 +2,7 @@
 
 **Project:** HawkerGo — DS608 Data Analytics for Economics (MDSE, 2026)
 
-HawkerGo was developed collaboratively as a three-member group project. The primary dashboard page responsibilities are listed below. These are assigned responsibilities; they should not be interpreted as a verified record of every Git commit or secondary task.
+HawkerGo was developed collaboratively as a three-member group project. The table below outlines each member's main focus area and core dashboard page.
 
 | Member | Primary responsibility | Main dashboard component |
 | --- | --- | --- |
