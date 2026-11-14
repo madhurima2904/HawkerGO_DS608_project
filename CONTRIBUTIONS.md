@@ -6,9 +6,9 @@ HawkerGo was developed collaboratively as a three-member group project. The tabl
 
 | Member | Primary responsibility | Main dashboard component |
 | --- | --- | --- |
-| **Madhurima Subramaniam Rudra** | (Page 1) Explore Hawkers | Centre exploration, closure status, map, and nearby alternative finder |
-| **Nicolyne Tiana Lie** | (Page 2) Maintenance Calendar | Area and date filters, closure overview, monthly calendar, closure details, and closure-pattern views |
-| **Toh En Hui** | (Page 3) Stall Insights | Top-ten stall-count comparison and market-versus-food-stall distribution |
+| **Madhurima Subramaniam Rudra** | Page 1: Explore Hawkers | Centre exploration, closure status, map, and nearby alternative finder |
+| **Nicolyne Tiana Lie** | Page 2: Maintenance Calendar | Area and date filters, closure overview, monthly calendar, closure details, and closure-pattern views |
+| **Toh En Hui** | Page 3: Stall Insights | Top-ten stall-count comparison and market-versus-food-stall distribution |
 
 ## Individual contributions
 
