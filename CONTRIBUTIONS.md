@@ -29,7 +29,7 @@ Responsible for the third dashboard page, which compares hawker centres by food 
 The team integrated the three pages into a unified Streamlit multipage dashboard (`app.py`) and collaborated via a shared GitHub repository. Shared responsibilities across all members included:
 
 - **Project scoping & planning:** Defining the research questions, dataset selection, and overall dashboard structure.
-- **Integration & testing:** Merging individual pages into the multipage app, verifying consistent styling and navigation, and testing the deployed application across pages.
+- **Integration & testing:** Inputting and merging individual pages into the multipage app, verifying consistent styling and navigation, and testing the deployed application across pages.
 - **Documentation & presentation:** Reviewing and editing `README.md`, `AI_USAGE.md`, and `CONTRIBUTIONS.md`, and preparing and rehearsing the final presentation (`DS608_HawkerGO_Presentation.pdf`).
 
 ## Academic integrity and accountability
