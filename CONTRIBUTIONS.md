@@ -14,11 +14,15 @@ HawkerGo was developed collaboratively as a three-member group project. The tabl
 
 ### Madhurima Subramaniam Rudra — Explore Hawkers
 
-Responsible for the first dashboard page, which lets users examine hawker centres, their scheduled closure status, location information, stall counts, and nearby alternatives. The page uses a processed hawker centre dataset and a precomputed walking-distance matrix. She also handled the raw-data processing, geographic joins, and precomputation of the walking-distance matrix used across the page.
+1. Cleaned and processed the raw NEA closure dataset (123 hawker centres, 27 fields) for use across the dashboard.
+2. Joined hawker centre GeoJSON and LTA MRT station exit data on coordinates to link each centre to its nearest MRT station. `hawker_centres_final.csv`
+3. Precomputed the walking-distance matrix so the page loads quickly without recalculating distances on each visit. `hawker_centres_walk_distances`
+4. Built the first page of the HawkerGo Streamlit dashboard, letting users explore each hawker centre’s scheduled closure status, location, and stall counts. `1_Explore_Hawkers`
+5. Added a nearby-alternatives feature that uses a precomputed walking-distance matrix to suggest open hawker centres near a closed one.
 
 ### Nicolyne Tiana Lie — Maintenance Calendar
 
-Responsible for the second dashboard page, which presents planned cleaning and other maintenance records in an interactive calendar. Work includes filtering by area and hawker centre, summarising scheduled events and affected centres, showing closure details, and handling records with incomplete dates. The associated closure-data reshaping logic is in `src/wrangle.py`. Nicolyne also contributed to dashboard styling and configuration troubleshooting, and preparation of project documentation and presentation materials.
+Responsible for the second dashboard page, which presents planned cleaning and other maintenance records in an interactive calendar. Work includes filtering by area and hawker centre, summarising scheduled events and affected centres, showing closure details, and handling records with incomplete dates. Nicolyne also contributed to dashboard styling and configuration troubleshooting, and preparation of project documentation and presentation materials.
 
 ### Toh En Hui — Stall Insights
 
