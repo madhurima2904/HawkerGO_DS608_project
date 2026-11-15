@@ -14,9 +14,9 @@ HawkerGo was developed collaboratively as a three-member group project. The tabl
 
 ### Madhurima Subramaniam Rudra — Explore Hawkers
 
-1. Cleaned and processed the raw NEA closure dataset (123 hawker centres, 27 fields) for use across the dashboard.
+1. Cleaned and processed the raw NEA closure dataset (123 hawker centres, 27 fields) for use across the dashboard. `wrangle.py`
 2. Joined hawker centre GeoJSON and LTA MRT station exit data on coordinates to link each centre to its nearest MRT station. `hawker_centres_final.csv`
-3. Precomputed the walking-distance matrix so the page loads quickly without recalculating distances on each visit. `hawker_centres_walk_distances`
+3. Precomputed the walking-distance matrix so the page loads quickly without recalculating distances on each visit. `precompute_walk.py`
 4. Built the first page of the HawkerGo Streamlit dashboard, letting users explore each hawker centre’s scheduled closure status, location, and stall counts. `1_Explore_Hawkers`
 5. Added a nearby-alternatives feature that uses a precomputed walking-distance matrix to suggest open hawker centres near a closed one.
 
